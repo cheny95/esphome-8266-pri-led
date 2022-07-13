@@ -1,0 +1,71 @@
+esphome:
+  name: 8266-pir-led
+
+esp8266:
+  board: d1_mini
+  # framework:
+    # version: 2.7.4
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+
+ota:
+  password: "12345678"
+
+wifi:
+  ssid: undefined
+  password: chan1234
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "8266-Pir Fallback Hotspot"
+    password: "12345678"
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: D5
+    name: "人体存在传感器"
+    device_class: occupancy
+    id: occupancy
+    filters:
+      - delayed_on_off: 50ms
+    on_press:
+      then:
+        - light.turn_off: 
+            id: ws
+            transition_length: 0.5s
+            
+        - light.turn_on:
+            id: ws
+            brightness: 100%
+            effect: "Rainbow"
+    on_release :
+      then:
+        - light.turn_off: 
+            id: ws
+            transition_length: 0.5s
+        - light.turn_on:
+            id: ws
+            brightness: 20%
+            red: 100%
+            green: 0%
+            blue: 0%
+            transition_length: 0.5s
+
+light:
+  - platform: neopixelbus
+    variant: WS2812X
+    pin: D6
+    num_leds: 1
+    type: GRB
+    name: "LED Light"
+    id: ws
+    effects:
+      - addressable_rainbow :
+          name: "Rainbow"
+          speed: 10
+          width: 1
